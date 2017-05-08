@@ -1,0 +1,9 @@
+{
+  "api.gateway.http.port": 8787,
+  "api.gateway.http.address": "localhost",
+  "circuit-breaker": {
+    "name": "api-gateway-cb",
+    "timeout": 10000,
+    "max-failures": 5
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "instances": "1",
+  "api.gateway.http.port": 3000,
+  "api.gateway.http.address": "localhost",
+  "circuit-breaker": {
+    "timeout": 1000,
+    "max-failures": 5
+  }
+}

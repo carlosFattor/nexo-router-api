@@ -1,0 +1,64 @@
+= Cheatsheets
+
+[[Account]]
+== Account
+
+++++
+ Created by carlos on 18/04/17.
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[accountId]]`accountId`|`String`|-
+|[[createdAt]]`createdAt`|`Number (long)`|-
+|[[name]]`name`|`String`|-
+|===
+
+[[Profile]]
+== Profile
+
+++++
+ Created by carlos on 21/04/17.
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[accountId]]`accountId`|`String`|-
+|[[avatar]]`avatar`|`String`|-
+|[[confirmed]]`confirmed`|`Boolean`|-
+|[[firstName]]`firstName`|`String`|-
+|[[gender]]`gender`|`String`|-
+|[[lastName]]`lastName`|`String`|-
+|[[location]]`location`|`String`|-
+|[[roles]]`roles`|`Array of link:enums.html#Role[Role]`|-
+|===
+
+[[User]]
+== User
+
+++++
+ Created by carlos on 21/04/17.
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[active]]`active`|`Boolean`|-
+|[[createdAt]]`createdAt`|`Number (long)`|-
+|[[email]]`email`|`String`|-
+|[[password]]`password`|`String`|-
+|[[profile]]`profile`|`link:dataobjects.html#Profile[Profile]`|-
+|[[tokens]]`tokens`|`Array of String`|-
+|[[updateAt]]`updateAt`|`Number (long)`|-
+|[[userId]]`userId`|`String`|-
+|[[userStatus]]`userStatus`|`link:enums.html#UserStatus[UserStatus]`|-
+|===
+

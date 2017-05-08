@@ -1,0 +1,17 @@
+exports.name = "findAndModify";
+
+exports.command = function(data){
+  console.log(data)
+  return {
+     findAndModify : "user",
+     query: {
+        email: data.email
+     },
+     update: {
+        $set: {
+            password: data.password
+        }
+     },
+     new: false
+  };
+ }

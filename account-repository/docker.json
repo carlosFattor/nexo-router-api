@@ -1,0 +1,10 @@
+{
+  "port": 8086,
+  "instances": 2,
+  "mongo": {
+    "db_name": "nexo_router",
+    "maxPoolSize": 5000,
+    "minPoolSize": 500,
+    "connection_string": "mongodb://localhost:27017/nexo_router"
+  }
+}
