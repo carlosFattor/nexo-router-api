@@ -15,11 +15,10 @@ import io.vertx.core.Future;
  */
 public class starter extends AbstractVerticle{
 
-    DeploymentOptions options = new DeploymentOptions().setInstances(1).setWorker(true);
-
     @Override
     public void start(Future<Void> startFuture) throws Exception {
         super.start(startFuture);
+        DeploymentOptions options = new DeploymentOptions().setInstances(config().getInteger("instances")).setWorker(true);
         vertx.deployVerticle(RootCreatingAccount.class.getName(), options);
         vertx.deployVerticle(RootFindingAccount.class.getName(), options);
         vertx.deployVerticle(RootCreatingUser.class.getName(), options);
@@ -35,6 +34,7 @@ public class starter extends AbstractVerticle{
         vertx.deployVerticle(UserExist.class.getName(), options);
         vertx.deployVerticle(RootFindingProfile.class.getName(), options);
         vertx.deployVerticle(RootUpdatingUserProfile.class.getName(), options);
+        vertx.deployVerticle(UserRecoveringPassword.class.getName(), options);
 
         vertx.deployVerticle(AccountVerticle.class.getName(), options);
     }

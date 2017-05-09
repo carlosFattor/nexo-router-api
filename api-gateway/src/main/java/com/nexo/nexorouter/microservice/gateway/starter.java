@@ -10,13 +10,12 @@ import io.vertx.core.DeploymentOptions;
  */
 public class starter extends AbstractVerticle{
 
-    DeploymentOptions options = new DeploymentOptions().setInstances(config().getInteger("instances")).setWorker(true);
-
     @Override
     public void start() throws Exception {
         super.start();
-        vertx.deployVerticle(APIGatewayVerticle.class.getName(), options);
+        DeploymentOptions options = new DeploymentOptions().setInstances(config().getInteger("instances")).setWorker(true);
 
+        vertx.deployVerticle(APIGatewayVerticle.class.getName(), options);
         vertx.deployVerticle(VerifyAuthentication.class.getName(), options);
     }
 }

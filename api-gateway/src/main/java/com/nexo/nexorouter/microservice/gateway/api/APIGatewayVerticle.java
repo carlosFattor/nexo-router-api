@@ -26,7 +26,7 @@ public class APIGatewayVerticle extends RestAPIVerticle {
 
     private static final int DEFAULT_PORT = 3000;
     private static final Logger logger = LoggerFactory.getLogger(APIGatewayVerticle.class);
-    private final List<String> pathsToIgnore = Arrays.asList("login", "refresh-token");
+    private static final List<String> pathsToIgnore = Arrays.asList("login", "refresh-token", "recover-password");
 
     @Override
     public void start(Future<Void> future) throws Exception {
@@ -125,7 +125,7 @@ public class APIGatewayVerticle extends RestAPIVerticle {
 
         Future<JsonObject> future = Future.future();
         String[] peaceOfPath = context.request().uri().split("/");
-
+        System.out.println(peaceOfPath[4]);
         if(peaceOfPath.length >=4 && this.pathsToIgnore.contains(peaceOfPath[4])){
             future.complete(new JsonObject().put("AUTHORIZATION", ""));
             return future;

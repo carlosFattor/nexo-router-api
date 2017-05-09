@@ -30,6 +30,9 @@ public class RestAccountAPIVerticle extends RestAPIVerticle {
     //API's user
     private static final String API_USER = "/users";
 
+    //API user recover password
+    private static final String API_USER_RECOVER = "/recover-password";
+
     //API's login
     private static final String API_LOGIN = "/login";
 
@@ -57,6 +60,8 @@ public class RestAccountAPIVerticle extends RestAPIVerticle {
         router.get(API_USER).handler(this::apiRetrieve);
         router.delete(API_USER).handler(this::apiDeleteUser);
 
+        //RECOVER PASSWORD
+        router.post(API_USER_RECOVER).handler(this::apiRecoverPassword);
 
         //ROUTES LOGIN
         router.post(API_LOGIN).handler(this::apiLogin);
@@ -125,6 +130,16 @@ public class RestAccountAPIVerticle extends RestAPIVerticle {
         } else {
             unauthorized(context);
         }
+    }
+
+    /**
+     * user recovering password
+     *
+     * @param context
+     */
+    private void apiRecoverPassword(RoutingContext context) {
+        JsonObject json = getBodyParamsHeader(context);
+        this.eb.send("account@user-recovering-password", json, resultHandlerNonEmpty(context));
     }
 
     /**
