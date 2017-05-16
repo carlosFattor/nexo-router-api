@@ -161,7 +161,7 @@ public class RestAccountAPIVerticle extends RestAPIVerticle {
      */
     private void apiRetrieve(RoutingContext context){
         JsonObject json = getBodyParamsHeader(context);
-        if(haveUserPermission(json)){
+        if(havePermission(json)){
             this.eb.send("account@user-finding-profile", json, resultHandlerNonEmpty(context));
         } else {
             unauthorized(context);
@@ -224,5 +224,10 @@ public class RestAccountAPIVerticle extends RestAPIVerticle {
     private Boolean haveUserPermission(JsonObject json){
         JsonArray roles = new JsonObject(json.getString("header")).getJsonObject("SUBJECT").getJsonArray("roles");
         return roles.contains(Role.DEFAULT.getTypeUser());
+    }
+
+    private Boolean havePermission(JsonObject json){
+        JsonArray roles = new JsonObject(json.getString("header")).getJsonObject("SUBJECT").getJsonArray("roles");
+        return roles.size() > 0;
     }
 }

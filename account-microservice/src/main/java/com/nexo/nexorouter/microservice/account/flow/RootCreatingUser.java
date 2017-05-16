@@ -60,7 +60,7 @@ public class RootCreatingUser extends Flow {
     private User createUser(JsonObject body, JsonObject header, String pass) {
         User user = new User();
 
-        Role role = Role.valueOf(body.getString("role"));
+        Role role = Role.valueOf(body.getString("roles"));
         List<Role> roles = Arrays.asList(role);
         String accountId = header.getJsonObject("SUBJECT").getString("accountId");
 
@@ -81,6 +81,7 @@ public class RootCreatingUser extends Flow {
         user.setUserStatus(UserStatus.ACTIVE);
         user.setProfile(profile);
         user.setTokens(Arrays.asList(java.util.UUID.randomUUID().toString()));
+        System.out.println(user.toJson().encodePrettily());
         return user;
     }
 

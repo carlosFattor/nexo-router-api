@@ -85,7 +85,7 @@ public class APIGatewayVerticle extends RestAPIVerticle {
                         String newPath = path.substring(initialOffset + prefix.length());
 
                         // get one relevant HTTP client, may not exist
-                        Optional<Record> client = recordList.stream()
+                        Optional<Record> client = recordList.stream().parallel()
                                 .filter(record -> record.getMetadata().getString("api.name") != null)
                                 .filter(record -> record.getName().equalsIgnoreCase(prefix))
                                 .findAny();
@@ -115,7 +115,6 @@ public class APIGatewayVerticle extends RestAPIVerticle {
 
         Future<JsonObject> future = Future.future();
         String[] peaceOfPath = context.request().uri().split("/");
-        System.out.println(peaceOfPath[4]);
         if(peaceOfPath.length >=4 && this.pathsToIgnore.contains(peaceOfPath[4])){
             future.complete(new JsonObject().put("AUTHORIZATION", ""));
             return future;

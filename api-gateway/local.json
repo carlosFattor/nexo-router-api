@@ -1,5 +1,5 @@
 {
-  "instances": 1,
+  "instances": 4,
   "api.gateway.http.port": 3000,
   "api.gateway.http.address": "localhost",
   "circuit-breaker": {

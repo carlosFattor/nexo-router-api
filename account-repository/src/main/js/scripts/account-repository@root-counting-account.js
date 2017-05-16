@@ -20,3 +20,10 @@ exports.command = function(data){
      ]
   };
  }
+
+ exports.transform = function(result){
+   if(result && result.length > 0){
+     return result[0];
+   }else
+     return {count: 0};
+ }

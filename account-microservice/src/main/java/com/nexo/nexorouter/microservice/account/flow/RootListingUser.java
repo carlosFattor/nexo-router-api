@@ -7,6 +7,8 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
+import java.util.Optional;
+
 /**
  * Created by carlos on 30/04/17.
  */
@@ -45,7 +47,9 @@ public class RootListingUser extends Flow {
     private Future<Integer> getTotalUserByAccount(JsonObject params) {
         Future<Integer> future = Future.future();
         eb.send("account-repository@root-counting-account", params, ar-> {
-            future.complete(((JsonArray) ar.result().body()).getJsonObject(0).getInteger("count"));
+            Optional<Integer> count = Optional.ofNullable(((JsonObject) ar.result().body()).getInteger("count"));
+
+            future.complete(count.orElse(0));
         });
 
         return future;
