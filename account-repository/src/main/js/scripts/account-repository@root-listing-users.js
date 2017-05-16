@@ -20,6 +20,7 @@ exports.command = function(data){
                 "firstName": "$profile.firstName",
                 "confirmed": "$profile.confirmed",
                 "avatar": "$profile.avatar",
+                "gender": "$profile.gender",
                 "userStatus": 1,
                 "createdAt": 1
             }

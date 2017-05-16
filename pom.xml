@@ -15,6 +15,7 @@
         <module>dependencies/repository</module>
         <module>account-microservice</module>
         <module>account-repository</module>
+        <module>mail-carrier</module>
     </modules>
     <packaging>pom</packaging>
 

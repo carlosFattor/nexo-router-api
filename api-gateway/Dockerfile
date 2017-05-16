@@ -5,7 +5,7 @@ ENV VERTICLE_FILE target/api-gateway-fat.jar
 # Set the location of the verticles
 ENV VERTICLE_HOME /opt/verticles
 
-EXPOSE 3000
+EXPOSE 8080
 
 COPY $VERTICLE_FILE $VERTICLE_HOME/
 COPY docker.json $VERTICLE_HOME/

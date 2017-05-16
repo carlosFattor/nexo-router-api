@@ -1,12 +1,11 @@
 package com.nexo.nexorouter.microservice.common;
 
 import com.nexo.nexorouter.microservice.common.util.Util;
-import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.AbstractVerticle;
 
 
 /**

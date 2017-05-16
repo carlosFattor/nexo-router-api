@@ -5,6 +5,4 @@ var options = {
   instances : config.instances || 8,
   config : config
 };
-
-
 vertx.deployVerticle("js/util/mongo@executor.js", options);

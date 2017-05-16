@@ -2,8 +2,6 @@ package com.nexo.nexorouter.microservice.gateway.api;
 
 import com.nexo.nexorouter.microservice.common.RestAPIVerticle;
 import io.vertx.core.Future;
-import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpServerResponse;
@@ -17,14 +15,15 @@ import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.HttpEndpoint;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by carlos on 17/04/17.
  */
 public class APIGatewayVerticle extends RestAPIVerticle {
 
-    private static final int DEFAULT_PORT = 3000;
     private static final Logger logger = LoggerFactory.getLogger(APIGatewayVerticle.class);
     private static final List<String> pathsToIgnore = Arrays.asList("login", "refresh-token", "recover-password");
 
@@ -32,17 +31,8 @@ public class APIGatewayVerticle extends RestAPIVerticle {
     public void start(Future<Void> future) throws Exception {
         super.start();
 
-        JsonObject circuit_break = new JsonObject()
-                .put("timeout", 10000)
-                .put("max-failures", 5);
-
-        config().put("api.gateway.http.port", DEFAULT_PORT)
-                .put("api.gateway.http.address", "localhost")
-                .put("circuit-breaker", circuit_break);
-
-
-        String host = config().getString("api.gateway.http.address", "localhost");
-        int port = config().getInteger("api.gateway.http.port", DEFAULT_PORT);
+        String host = config().getString("api.gateway.http.address");
+        int port = config().getInteger("api.gateway.http.port");
 
         Router router = Router.router(vertx);
 
@@ -62,6 +52,7 @@ public class APIGatewayVerticle extends RestAPIVerticle {
                     if (ar.succeeded()) {
                         publishApiGateway(host, port);
                         future.complete();
+                        System.out.println("API Gateway is running on host " + host + ", port " +port);
                         logger.info("API Gateway is running on port " + port);
                         // publish log
                         publishGatewayLog("api_gateway_init_success:" + port);
@@ -73,9 +64,8 @@ public class APIGatewayVerticle extends RestAPIVerticle {
 
     private void dispatchRequests(RoutingContext context){
         int initialOffset = 8;
-        System.out.println(context.request().absoluteURI());
         Future<JsonObject> futAuth = checkAuthentication(context);
-
+        System.out.println(context.request().absoluteURI());
         futAuth.setHandler(authorized -> {
             if (authorized.succeeded()) {
                 circuitBreaker.execute(future -> getAllEndpoints().setHandler(ar -> {

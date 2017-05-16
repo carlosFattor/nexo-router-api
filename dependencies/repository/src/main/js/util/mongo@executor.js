@@ -1,5 +1,4 @@
-//com.nexo.nexorouter.microservice.common.util.Util
-//var util = require("../com/nexo/nexorouter/microservice/common/util/util.js");
+
 var MongoClient = require("vertx-mongo-js/mongo_client");
 
 module.exports = {
@@ -8,7 +7,8 @@ module.exports = {
     var self = this;
     var scripts = {};
     var config = vertx.getOrCreateContext().config();
-
+    console.log(vertx);
+    console.log(config)
     this.mongoClient = MongoClient.createShared(vertx, config.mongo);
 
     var files = vertx.fileSystem().readDir("js/scripts", function(files){

@@ -2,7 +2,6 @@ package com.nexo.nexorouter.microservice.account.flow;
 
 import com.nexo.nexorouter.microservice.account.models.User;
 import com.nexo.nexorouter.microservice.common.Flow;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;

@@ -1,7 +1,6 @@
 package com.nexo.nexorouter.microservice.account.api;
 
 import com.nexo.nexorouter.microservice.common.RestAPIVerticle;
-
 import com.nexo.nexorouter.microservice.common.enums.Role;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;

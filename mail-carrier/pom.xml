@@ -5,32 +5,21 @@
     <parent>
         <artifactId>nexo-router</artifactId>
         <groupId>com.nexo.nexo-router</groupId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>3.4.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>account-microservice</artifactId>
+    <artifactId>mail-carrier</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
 
-    <properties>
-        <main.verticle>com.nexo.nexorouter.microservice.starter</main.verticle>
-    </properties>
     <dependencies>
         <dependency>
-            <groupId>com.nexo.nexo-router</groupId>
-            <artifactId>nexo-common</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt</artifactId>
-            <version>0.7.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.nexo.nexo-router</groupId>
-            <artifactId>nexo-common</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-mail-client</artifactId>
+            <version>3.4.1</version>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -38,5 +27,13 @@
                 <artifactId>maven-shade-plugin</artifactId>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main</directory>
+                <includes>
+                    <include>**/*.*</include>
+                </includes>
+            </resource>
+        </resources>
     </build>
 </project>

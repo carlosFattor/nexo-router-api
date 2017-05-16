@@ -2,11 +2,17 @@ package com.nexo.nexorouter.microservice.account.flow;
 
 import com.nexo.nexorouter.microservice.account.models.Profile;
 import com.nexo.nexorouter.microservice.common.Flow;
+import com.nexo.nexorouter.microservice.common.enums.Role;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by carlos on 26/04/17.
@@ -32,12 +38,21 @@ public class RootUpdatingUserProfile extends Flow {
     }
 
     private Profile updateProfile(JsonObject body, AsyncResult<JsonObject> user) {
+
+        JsonArray _roles = body.getJsonArray("roles");
+        List<Role> roles = new ArrayList<>();
+        _roles.forEach(r -> {
+            roles.add(Role.valueOf((String)r));
+        });
+
+
         Profile profile = new Profile(user.result().getJsonObject("profile"));
 
         profile.setFirstName(body.getString("firstName"));
         profile.setLastName(body.getString("lastName"));
         profile.setLocation(body.getString("location"));
         profile.setGender(body.getString("gender"));
+        profile.setRoles(roles);
         return profile;
     }
 

@@ -3,18 +3,16 @@ package com.nexo.nexorouter.microservice.common;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.CorsHandler;
-import io.vertx.core.eventbus.impl.clustered.ClusteredMessage;
-import io.vertx.core.eventbus.Message;
+
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 /**
@@ -35,7 +33,7 @@ public class RestAPIVerticle extends BaseMicroserviceVerticle {
         allowHeaders.add("x-requested-with");
         allowHeaders.add("Access-Control-Allow-Origin");
         allowHeaders.add("Access-Control-Allow-Headers");
-        allowHeaders.add("origin");
+        allowHeaders.add("*");
         allowHeaders.add("Content-Type");
         allowHeaders.add("Accept");
         allowHeaders.add("Authorization");
@@ -52,23 +50,6 @@ public class RestAPIVerticle extends BaseMicroserviceVerticle {
         router.route().handler(CorsHandler.create("*")
                 .allowedHeaders(allowHeaders)
                 .allowedMethods(allowMethods));
-    }
-
-    // Auth helper method
-
-    /**
-     * Validate if a user exists in the request scope.
-     */
-    protected void requireLogin(RoutingContext context, BiConsumer<RoutingContext, JsonObject> biHandler) {
-        Optional<JsonObject> principal = Optional.ofNullable(context.request().getHeader("user-principal"))
-                .map(JsonObject::new);
-        if (principal.isPresent()) {
-            biHandler.accept(context, principal.get());
-        } else {
-            context.response()
-                    .setStatusCode(401)
-                    .end(new JsonObject().put("message", "need_auth").encode());
-        }
     }
 
     // helper result handler within a request context

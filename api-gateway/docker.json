@@ -2,9 +2,7 @@
   "instances": 2,
   "api.gateway.http.port": 3000,
   "api.gateway.http.address": "0.0.0.0",
-  "api.gateway.http.address.external": "localhost",
   "circuit-breaker": {
-    "name": "api-gateway-cb",
     "timeout": 10000,
     "max-failures": 5
   }

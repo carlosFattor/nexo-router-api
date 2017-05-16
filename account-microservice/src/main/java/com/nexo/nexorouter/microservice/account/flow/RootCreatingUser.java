@@ -11,6 +11,7 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -57,10 +58,10 @@ public class RootCreatingUser extends Flow {
     }
 
     private User createUser(JsonObject body, JsonObject header, String pass) {
-        System.out.println(body.encodePrettily());
-        System.out.println(header.encodePrettily());
         User user = new User();
 
+        Role role = Role.valueOf(body.getString("role"));
+        List<Role> roles = Arrays.asList(role);
         String accountId = header.getJsonObject("SUBJECT").getString("accountId");
 
         Profile profile = new Profile();
@@ -71,8 +72,7 @@ public class RootCreatingUser extends Flow {
         profile.setLastName(Optional.ofNullable(body.getString("lastName")).orElse(""));
         profile.setLocation(Optional.ofNullable(body.getString("location")).orElse(""));
         profile.setGender(Optional.ofNullable(body.getString("gender")).orElse(""));
-        profile.setRoles(Arrays.asList(Role.DEFAULT));
-
+        profile.setRoles(roles);
 
         user.setCreatedAt(System.currentTimeMillis());
         user.setUpdateAt(System.currentTimeMillis());
@@ -81,7 +81,6 @@ public class RootCreatingUser extends Flow {
         user.setUserStatus(UserStatus.ACTIVE);
         user.setProfile(profile);
         user.setTokens(Arrays.asList(java.util.UUID.randomUUID().toString()));
-        System.out.println(user.toJson().toString());
         return user;
     }
 

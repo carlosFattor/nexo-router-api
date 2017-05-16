@@ -34,8 +34,7 @@ public abstract class BaseMicroserviceVerticle extends AbstractVerticle {
 
     @Override
     public void start() throws Exception {
-        // init service discovery instance
-        System.out.println("BASE=> " + config().encodePrettily());
+
         discovery = ServiceDiscovery.create(vertx, new ServiceDiscoveryOptions().setBackendConfiguration(config()));
 
         // init circuit breaker instance

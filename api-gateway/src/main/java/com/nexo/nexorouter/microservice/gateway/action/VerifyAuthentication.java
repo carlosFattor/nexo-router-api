@@ -3,7 +3,6 @@ package com.nexo.nexorouter.microservice.gateway.action;
 import co.paralleluniverse.fibers.Suspendable;
 import com.nexo.nexorouter.microservice.common.Flow;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.vertx.core.eventbus.Message;
