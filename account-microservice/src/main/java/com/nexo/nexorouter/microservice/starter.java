@@ -2,10 +2,7 @@ package com.nexo.nexorouter.microservice;
 
 import com.hazelcast.config.Config;
 import com.nexo.nexorouter.microservice.account.AccountVerticle;
-import com.nexo.nexorouter.microservice.account.action.CreatingJwt;
-import com.nexo.nexorouter.microservice.account.action.EncryptingUserPassword;
-import com.nexo.nexorouter.microservice.account.action.UserExist;
-import com.nexo.nexorouter.microservice.account.action.ValidatingUserPassword;
+import com.nexo.nexorouter.microservice.account.action.*;
 import com.nexo.nexorouter.microservice.account.flow.*;
 import io.vertx.core.*;
 import io.vertx.core.spi.cluster.ClusterManager;
@@ -29,7 +26,7 @@ public class starter extends AbstractVerticle{
         Vertx.clusteredVertx(_options, res -> {
             if (res.succeeded()) {
                 Vertx vertx = res.result();
-                DeploymentOptions options = new DeploymentOptions().setInstances(config().getInteger("instances")).setWorker(true);
+                DeploymentOptions options = new DeploymentOptions().setConfig(config());
                 vertx.deployVerticle(RootCreatingAccount.class.getName(), options);
                 vertx.deployVerticle(RootFindingAccount.class.getName(), options);
                 vertx.deployVerticle(RootCreatingUser.class.getName(), options);
@@ -46,6 +43,10 @@ public class starter extends AbstractVerticle{
                 vertx.deployVerticle(RootFindingProfile.class.getName(), options);
                 vertx.deployVerticle(RootUpdatingUserProfile.class.getName(), options);
                 vertx.deployVerticle(UserRecoveringPassword.class.getName(), options);
+                vertx.deployVerticle(UserFindingProfileByToken.class.getName(), options);
+                vertx.deployVerticle(UserUpdatingPassword.class.getName(), options);
+                vertx.deployVerticle(CleaningUpTokens.class.getName(), options);
+                vertx.deployVerticle(UserActivatingUser.class.getName(), options);
 
                 vertx.deployVerticle(AccountVerticle.class.getName(), options);
             } else {

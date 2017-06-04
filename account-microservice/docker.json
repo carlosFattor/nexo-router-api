@@ -1,5 +1,5 @@
 {
-  "instances": 2,
+  "instances": 4,
   "api.name": "account-rest-api",
   "account.http.port": 8085,
   "account.http.address": "account-microservice"

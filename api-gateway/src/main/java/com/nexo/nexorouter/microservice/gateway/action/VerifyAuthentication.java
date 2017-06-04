@@ -29,7 +29,8 @@ public class VerifyAuthentication extends Flow{
             jsonResponse
                     .put("ID", claims.getId())
                     .put("SUBJECT", new JsonObject(claims.getSubject()))
-                    .put("ISSUER", claims.getIssuer());
+                    .put("ISSUER", claims.getIssuer())
+                    .put("JTW", message.body().getString("Authorization"));
 
             message.reply(jsonResponse);
         }catch (JwtException e){

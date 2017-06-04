@@ -20,9 +20,9 @@ public class UserFindingProfile extends Flow{
         JsonObject body = message.body();
         JsonObject header = new JsonObject(body.getString("header"));
 
-        existUser(body).compose(jsonUser -> {
+        existUser(body.getJsonObject("params")).compose(jsonUser -> {
             if(jsonUser.isEmpty()){
-                message.reply(null);
+                message.fail(404, "user not found");
                 return;
             }
             if(isSameUser(header, jsonUser)){
@@ -50,7 +50,7 @@ public class UserFindingProfile extends Flow{
                 future.complete((JsonObject) ar.result().body());
             });
         } else {
-            future.complete(new JsonObject());
+            future.failed();
         }
         return future;
     }

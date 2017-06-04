@@ -1,6 +1,6 @@
 {
   "port": 8086,
-  "instances": 4,
+  "instances": 1,
   "mongo": {
     "db_name": "nexo_router",
     "maxPoolSize": 5000,

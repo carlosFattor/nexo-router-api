@@ -21,7 +21,7 @@ public class User {
     private String password;
     private UserStatus userStatus;
     private Profile profile;
-    private List<String> tokens;
+    private List<Token> tokens;
 
     public User() {
     }
@@ -122,11 +122,11 @@ public class User {
         this.profile = profile;
     }
 
-    public List<String> getTokens() {
+    public List<Token> getTokens() {
         return tokens;
     }
 
-    public void setTokens(List<String> tokens) {
+    public void setTokens(List<Token> tokens) {
         this.tokens = tokens;
     }
 

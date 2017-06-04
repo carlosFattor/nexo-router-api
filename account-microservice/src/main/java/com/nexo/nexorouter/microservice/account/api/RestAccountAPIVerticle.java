@@ -2,6 +2,7 @@ package com.nexo.nexorouter.microservice.account.api;
 
 import com.nexo.nexorouter.microservice.common.RestAPIVerticle;
 import com.nexo.nexorouter.microservice.common.enums.Role;
+import io.vertx.codegen.annotations.Nullable;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
@@ -31,6 +32,10 @@ public class RestAccountAPIVerticle extends RestAPIVerticle {
 
     //API user recover password
     private static final String API_USER_RECOVER = "/recover-password";
+    private static final String API_USER_BY_TOKEN = "/recover-password/:token";
+
+    //API to active user
+    private static final String API_USER_ACTIVE = "/users/active/:token";
 
     //API's login
     private static final String API_LOGIN = "/login";
@@ -61,6 +66,12 @@ public class RestAccountAPIVerticle extends RestAPIVerticle {
 
         //RECOVER PASSWORD
         router.post(API_USER_RECOVER).handler(this::apiRecoverPassword);
+        router.get(API_USER_BY_TOKEN).handler(this::apiFindUserByToken);
+        router.post(API_USER_BY_TOKEN).handler(this::apiUpdatePassword);
+
+        //ACTIVE USER
+        router.get(API_USER_ACTIVE).handler(this::apiUserByTokenToActive);
+        router.post(API_USER_ACTIVE).handler(this::apiActiveUser);
 
         //ROUTES LOGIN
         router.post(API_LOGIN).handler(this::apiLogin);
@@ -117,16 +128,21 @@ public class RestAccountAPIVerticle extends RestAPIVerticle {
         }
     }
 
+    /**
+     * find list of users
+     * @param context
+     */
     private void apiAccountListUser(RoutingContext context){
         JsonObject json = getBodyParamsHeader(context);
         if(haveAdminPermission(json)){
-            Optional<String> email = Optional.ofNullable(json.getString("email"));
+            Optional<String> email = Optional.ofNullable(json.getJsonObject("params").getString("email"));
             if(email.isPresent()){
                 this.eb.send("account@root-finding-profile", json, resultHandlerNonEmpty(context));
             } else {
                 this.eb.send("account@root-listing-user", json, resultHandlerNonEmpty(context));
             }
         } else {
+            System.out.println("ERROR");
             unauthorized(context);
         }
     }
@@ -139,6 +155,34 @@ public class RestAccountAPIVerticle extends RestAPIVerticle {
     private void apiRecoverPassword(RoutingContext context) {
         JsonObject json = getBodyParamsHeader(context);
         this.eb.send("account@user-recovering-password", json, resultHandlerNonEmpty(context));
+    }
+
+    /**
+     * Find user by token to recover password
+     * @param context
+     */
+    private void apiFindUserByToken(RoutingContext context){
+        @Nullable String token = context.request().getParam("token");
+        this.eb.send("account@user-finding-profile-by-token", new JsonObject().put("token", token), resultHandlerNonEmpty(context));
+    }
+
+    private void apiUpdatePassword(RoutingContext context){
+        JsonObject json = getBodyParamsHeader(context);
+        this.eb.send("account@user-updating-password", json, resultHandlerNonEmpty(context));
+    }
+
+    /**
+     * find user by token to active the same
+     * @param context
+     */
+    private void apiUserByTokenToActive(RoutingContext context){
+        @Nullable String token = context.request().getParam("token");
+        this.eb.send("account@user-finding-profile-by-token", new JsonObject().put("token", token), resultHandlerNonEmpty(context));
+    }
+
+    private void apiActiveUser(RoutingContext context) {
+        JsonObject json = getBodyParamsHeader(context);
+        this.eb.send("account@user-activating-user", json, resultHandlerNonEmpty(context));
     }
 
     /**
@@ -160,7 +204,7 @@ public class RestAccountAPIVerticle extends RestAPIVerticle {
      * @param context
      */
     private void apiRetrieve(RoutingContext context){
-        JsonObject json = getBodyParamsHeader(context);
+        JsonObject json = this.getBodyParamsHeader(context);
         if(havePermission(json)){
             this.eb.send("account@user-finding-profile", json, resultHandlerNonEmpty(context));
         } else {
@@ -187,7 +231,7 @@ public class RestAccountAPIVerticle extends RestAPIVerticle {
      */
     private void apiUpdateUser(RoutingContext context) {
         JsonObject json = getBodyParamsHeader(context);
-        if(haveUserPermission(json)){
+        if(havePermission(json)){
             this.eb.send("account@user-updating-profile", json, resultHandlerNonEmpty(context));
         } else {
             unauthorized(context);
@@ -197,37 +241,13 @@ public class RestAccountAPIVerticle extends RestAPIVerticle {
     private void creatingHttpServer(Future<Void> future, Router router) {
         String host = config().getString("account.http.address", "0.0.0.0");
         int port = config().getInteger("account.http.port", 8085);
-
+        System.out.println(SERVICE_NAME);
+        System.out.println(port);
+        System.out.println(host);
         createHttpServer(router, host, port)
                 .compose(serverCreated -> publishHttpEndpoint(SERVICE_NAME, host, port))
                 .setHandler(future.completer());
     }
 
-    private JsonObject getBodyParamsHeader(RoutingContext context){
-        JsonObject json = new JsonObject();
-        json.put("header", context.request().getHeader("Authorization"));
-        try{
-            json.put("data", context.getBodyAsJson());
-        } catch (Exception e){}
 
-        context.request().params().forEach(param -> {
-            json.put(param.getKey(), param.getValue());
-        });
-        return json;
-    }
-
-    private Boolean haveAdminPermission(JsonObject json){
-        JsonArray roles = new JsonObject(json.getString("header")).getJsonObject("SUBJECT").getJsonArray("roles");
-        return roles.contains(Role.ADMIN.getTypeUser());
-    }
-
-    private Boolean haveUserPermission(JsonObject json){
-        JsonArray roles = new JsonObject(json.getString("header")).getJsonObject("SUBJECT").getJsonArray("roles");
-        return roles.contains(Role.DEFAULT.getTypeUser());
-    }
-
-    private Boolean havePermission(JsonObject json){
-        JsonArray roles = new JsonObject(json.getString("header")).getJsonObject("SUBJECT").getJsonArray("roles");
-        return roles.size() > 0;
-    }
 }

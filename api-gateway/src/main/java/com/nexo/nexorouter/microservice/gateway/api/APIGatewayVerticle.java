@@ -2,9 +2,7 @@ package com.nexo.nexorouter.microservice.gateway.api;
 
 import com.nexo.nexorouter.microservice.common.RestAPIVerticle;
 import io.vertx.core.Future;
-import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.HttpClientRequest;
-import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.http.*;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -52,7 +50,7 @@ public class APIGatewayVerticle extends RestAPIVerticle {
                     if (ar.succeeded()) {
                         publishApiGateway(host, port);
                         future.complete();
-                        System.out.println("API Gateway is running on host " + host + ", port " +port);
+                        System.out.println("API Gateway is running on host " + host + ", port " + port);
                         logger.info("API Gateway is running on port " + port);
                         // publish log
                         publishGatewayLog("api_gateway_init_success:" + port);
@@ -62,19 +60,23 @@ public class APIGatewayVerticle extends RestAPIVerticle {
                 });
     }
 
-    private void dispatchRequests(RoutingContext context){
+    private void dispatchRequests(RoutingContext context) {
         int initialOffset = 8;
         Future<JsonObject> futAuth = checkAuthentication(context);
         System.out.println(context.request().absoluteURI());
         futAuth.setHandler(authorized -> {
             if (authorized.succeeded()) {
-                circuitBreaker.execute(future -> getAllEndpoints().setHandler(ar -> {
-                    if(ar.succeeded()){
+                circuitBreaker.openHandler(cbOpen -> {
+                    publishGatewayLog(new JsonObject().put("cbOpen", cbOpen));
+                }).closeHandler(cbClose -> {
+                    publishGatewayLog(new JsonObject().put("cbClose", cbClose));
+                }).execute(future -> getAllEndpoints().setHandler(ar -> {
+                    if (ar.succeeded()) {
                         List<Record> recordList = ar.result();
 
                         String path = context.request().uri();
 
-                        if(path.length() <= initialOffset){
+                        if (path.length() <= initialOffset) {
                             notFound(context);
                             future.complete();
                             return;
@@ -89,7 +91,7 @@ public class APIGatewayVerticle extends RestAPIVerticle {
                                 .filter(record -> record.getMetadata().getString("api.name") != null)
                                 .filter(record -> record.getName().equalsIgnoreCase(prefix))
                                 .findAny();
-                        if(client.isPresent()){
+                        if (client.isPresent()) {
                             context.request().headers().add("AUTHORIZATION", authorized.result().toString());
                             doDispatch(context, newPath, discovery.getReference(client.get()).get(), future);
                         } else {
@@ -115,7 +117,7 @@ public class APIGatewayVerticle extends RestAPIVerticle {
 
         Future<JsonObject> future = Future.future();
         String[] peaceOfPath = context.request().uri().split("/");
-        if(peaceOfPath.length >=4 && this.pathsToIgnore.contains(peaceOfPath[4])){
+        if (peaceOfPath.length >= 4 && this.pathsToIgnore.contains(peaceOfPath[4])) {
             future.complete(new JsonObject().put("AUTHORIZATION", ""));
             return future;
         }
@@ -123,16 +125,15 @@ public class APIGatewayVerticle extends RestAPIVerticle {
         JsonObject param = new JsonObject();
         getAuthorization(context, param);
 
-        if(!param.isEmpty()){
+        if (!param.isEmpty()) {
             vertx.eventBus().send("gateway@verify-authentication", param, ar -> {
-
-                if(ar.succeeded()){
+                if (ar.succeeded()) {
                     future.complete((JsonObject) ar.result().body());
                 } else {
                     future.fail(ar.cause());
                 }
             });
-        }else {
+        } else {
             future.failed();
         }
 
@@ -141,14 +142,13 @@ public class APIGatewayVerticle extends RestAPIVerticle {
 
     private void getAuthorization(RoutingContext context, JsonObject param) {
         context.request().headers().entries().forEach(header -> {
-            if(header.getKey().equalsIgnoreCase("Authorization")){
+            if (header.getKey().equalsIgnoreCase("Authorization")) {
                 param.put("Authorization", header.getValue());
             }
         });
     }
 
     private void doDispatch(RoutingContext context, String path, HttpClient client, Future<Object> cbFuture) {
-
         HttpClientRequest toReq = client
                 .request(context.request().method(), path, response -> {
                     response.bodyHandler(body -> {

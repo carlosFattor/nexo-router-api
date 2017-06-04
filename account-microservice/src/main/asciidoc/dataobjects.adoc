@@ -39,6 +39,22 @@
 |[[roles]]`roles`|`Array of link:enums.html#Role[Role]`|-
 |===
 
+[[Token]]
+== Token
+
+++++
+ Created by carlos on 28/05/17.
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[token]]`token`|`String`|-
+|[[validate]]`validate`|`Number (long)`|-
+|===
+
 [[User]]
 == User
 
@@ -56,7 +72,7 @@
 |[[email]]`email`|`String`|-
 |[[password]]`password`|`String`|-
 |[[profile]]`profile`|`link:dataobjects.html#Profile[Profile]`|-
-|[[tokens]]`tokens`|`Array of String`|-
+|[[tokens]]`tokens`|`Array of link:dataobjects.html#Token[Token]`|-
 |[[updateAt]]`updateAt`|`Number (long)`|-
 |[[userId]]`userId`|`String`|-
 |[[userStatus]]`userStatus`|`link:enums.html#UserStatus[UserStatus]`|-

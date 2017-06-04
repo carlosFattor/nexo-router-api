@@ -13,7 +13,8 @@ public class AccountVerticle extends BaseMicroserviceVerticle {
     @Override
     public void start(Future<Void> startFuture) throws Exception {
         super.start();
-        DeploymentOptions options = new DeploymentOptions().setInstances(1).setWorker(true);
+        System.out.println(config().encodePrettily());
+        DeploymentOptions options = new DeploymentOptions().setConfig(config());
         vertx.deployVerticle(RestAccountAPIVerticle.class.getName(), options);
     }
 }

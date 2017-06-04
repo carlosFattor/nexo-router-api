@@ -1,7 +1,7 @@
 exports.name = "findAndModify";
 
 exports.command = function(data){
-  console.log(data)
+
   return {
      findAndModify : "user",
      query: {

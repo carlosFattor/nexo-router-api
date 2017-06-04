@@ -9,7 +9,7 @@ public class starter extends AbstractVerticle {
     @Override
     public void start() throws Exception {
         super.start();
-        DeploymentOptions options = new DeploymentOptions().setInstances(config().getInteger("instances")).setWorker(true);
+        DeploymentOptions options = new DeploymentOptions().setConfig(config());
 
         vertx.deployVerticle("js/util/mongo@executor.js", options);
     }

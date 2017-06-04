@@ -1,17 +1,15 @@
 package com.nexo.nexorouter.microservice.account.flow;
 
-import com.nexo.nexorouter.microservice.account.models.Profile;
 import com.nexo.nexorouter.microservice.account.models.User;
+import com.nexo.nexorouter.microservice.account.utils.UserHelper;
 import com.nexo.nexorouter.microservice.common.Flow;
-import com.nexo.nexorouter.microservice.common.enums.Role;
-import com.nexo.nexorouter.microservice.common.enums.UserStatus;
 import io.vertx.core.Future;
+import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -19,9 +17,8 @@ import java.util.Optional;
  */
 public class RootCreatingUser extends Flow {
 
-    private static final String PERMISSION = "admin";
     private EventBus eb;
-    private static String AVATAR_URL = "https://api.adorable.io/avatars/";
+    private static final io.vertx.core.logging.Logger logger = LoggerFactory.getLogger(RootCreatingUser.class);
 
     @Override
     protected void process(Message<JsonObject> message) {
@@ -31,57 +28,60 @@ public class RootCreatingUser extends Flow {
         Future<Boolean> existUser = existUser(data.getString("email"));
         Future<String> passwordEncrypt = encryptPassword(data.getString("password"));
         JsonObject header = new JsonObject(message.body().getString("header"));
-
         existUser.compose(exist -> {
             if(exist.booleanValue()){
                 message.fail(400, "Create user impossible.");
+                logger.warn("Attempt to create a new user with: " + data.getString("email"));
                 return;
             }
 
             passwordEncrypt.setHandler(pass -> {
                 User user = createUser(data, header, pass.result());
                 user.setUserId(java.util.UUID.randomUUID().toString());
-
                 eb.send("account-repository@creating-user", user.toJson(), ar -> {
                     if(ar.succeeded()){
-
+                        sendEmailToNewUser(user);
                         message.reply(new JsonObject().put("status", "created"));
                     } else {
+                        logger.warn("Error trying create a new user: " + ar.cause());
                         message.reply(ar.cause());
                     }
                 });
             });
         }, Future.future().setHandler( fail -> {
+            logger.error("error trying find a user: " + fail.cause());
             message.reply(new JsonObject().put("error", fail.cause()));
         }));
 
     }
 
+    private void sendEmailToNewUser(User user) {
+        JsonObject address = new JsonObject()
+                .put("from", "carlos.fattor@gmail.com")
+                .put("to", user.getEmail())
+                .put("subject", "Email de boas vindas");
+        JsonObject body = new JsonObject()
+                .put("name", user.getProfile().getFirstName())
+                .put("email", user.getEmail())
+                .put("link", "http://localhost:8080/active-user/" + user.getTokens().get(0).getToken());
+        JsonObject email = new JsonObject()
+                .put("template", "user_created")
+                .put("address", address)
+                .put("body", body);
+        JsonObject data = new JsonObject().put("data", email);
+
+        eb.send("mail@email-carrier", data, event -> {
+            if(event.succeeded()){
+                logger.info("sent a new email: " + email);
+            } else {
+                logger.warn(event.cause());
+            }
+        });
+
+    }
+
     private User createUser(JsonObject body, JsonObject header, String pass) {
-        User user = new User();
-
-        Role role = Role.valueOf(body.getString("roles"));
-        List<Role> roles = Arrays.asList(role);
-        String accountId = header.getJsonObject("SUBJECT").getString("accountId");
-
-        Profile profile = new Profile();
-        profile.setAccountId(Optional.ofNullable(body.getString("accountId")).orElse(accountId));
-        profile.setAvatar(Optional.ofNullable(body.getString("avatar")).orElse(AVATAR_URL+System.currentTimeMillis()));
-        profile.setConfirmed(false);
-        profile.setFirstName(body.getString("firstName"));
-        profile.setLastName(Optional.ofNullable(body.getString("lastName")).orElse(""));
-        profile.setLocation(Optional.ofNullable(body.getString("location")).orElse(""));
-        profile.setGender(Optional.ofNullable(body.getString("gender")).orElse(""));
-        profile.setRoles(roles);
-
-        user.setCreatedAt(System.currentTimeMillis());
-        user.setUpdateAt(System.currentTimeMillis());
-        user.setEmail(body.getString("email"));
-        user.setPassword(pass);
-        user.setUserStatus(UserStatus.ACTIVE);
-        user.setProfile(profile);
-        user.setTokens(Arrays.asList(java.util.UUID.randomUUID().toString()));
-        System.out.println(user.toJson().encodePrettily());
+        User user = UserHelper.createUser(body, header, pass);
         return user;
     }
 

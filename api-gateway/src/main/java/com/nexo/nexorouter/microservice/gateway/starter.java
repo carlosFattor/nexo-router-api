@@ -26,8 +26,7 @@ public class starter extends AbstractVerticle{
         Vertx.clusteredVertx(_options, res -> {
             if (res.succeeded()) {
                 Vertx vertx = res.result();
-                DeploymentOptions options = new DeploymentOptions().setInstances(config().getInteger("instances"));
-                options.setConfig(config());
+                DeploymentOptions options = new DeploymentOptions().setConfig(config());
 
                 vertx.deployVerticle(APIGatewayVerticle.class.getName(), options);
                 vertx.deployVerticle(VerifyAuthentication.class.getName(), options);

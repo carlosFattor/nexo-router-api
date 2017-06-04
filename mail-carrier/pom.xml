@@ -5,12 +5,16 @@
     <parent>
         <artifactId>nexo-router</artifactId>
         <groupId>com.nexo.nexo-router</groupId>
-        <version>3.4.1</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>mail-carrier</artifactId>
     <version>1.0.0-SNAPSHOT</version>
+
+    <properties>
+        <main.verticle>com.nexo.nexorouter.microservice.starter</main.verticle>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -18,9 +22,26 @@
             <artifactId>vertx-mail-client</artifactId>
             <version>3.4.1</version>
         </dependency>
+        <dependency>
+            <groupId>com.nexo.nexo-router</groupId>
+            <artifactId>nexo-common</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.1</version>
+                    <configuration>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <!-- plugin to create a `fat-jar` -->

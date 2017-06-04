@@ -18,10 +18,9 @@ public class RootFindingProfile extends Flow{
     protected void process(Message<JsonObject> message) {
         eb = vertx.eventBus();
         JsonObject body = message.body();
-
-        existUser(body).compose(jsonUser -> {
+        existUser(body.getJsonObject("params")).compose(jsonUser -> {
             if(jsonUser.isEmpty()){
-                message.reply(null);
+                message.fail(404, "User not found");
                 return;
             }
 
@@ -33,14 +32,9 @@ public class RootFindingProfile extends Flow{
         }));
     }
 
-    private boolean isSameUser(JsonObject header, JsonObject user) {
-        return header.getString("ID").equalsIgnoreCase(user.getString("email"));
-    }
-
     private Future<JsonObject> existUser(JsonObject params) {
         Future<JsonObject> future = Future.future();
         if(params.containsKey("email")){
-
             eb.send("account@user-exist", params, ar -> {
                 future.complete((JsonObject) ar.result().body());
             });

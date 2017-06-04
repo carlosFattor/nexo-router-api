@@ -76,7 +76,6 @@ public class UserLogging extends Flow {
     private Future<JsonObject> existUser(JsonObject params) {
         Future<JsonObject> future = Future.future();
         if(params.containsKey("email")){
-
             eb.send("account@user-exist", params, ar -> {
                 future.complete((JsonObject) ar.result().body());
             });

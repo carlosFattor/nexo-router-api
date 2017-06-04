@@ -10,6 +10,9 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.CorsHandler;
+import io.vertx.core.json.JsonArray;
+import com.nexo.nexorouter.microservice.common.enums.Role;
+import java.util.Optional;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -29,27 +32,18 @@ public class RestAPIVerticle extends BaseMicroserviceVerticle {
     }
 
     protected void enableCorsSupport(Router router) {
-        Set<String> allowHeaders = new HashSet<>();
-        allowHeaders.add("x-requested-with");
-        allowHeaders.add("Access-Control-Allow-Origin");
-        allowHeaders.add("Access-Control-Allow-Headers");
-        allowHeaders.add("*");
-        allowHeaders.add("Content-Type");
-        allowHeaders.add("Accept");
-        allowHeaders.add("Authorization");
-        allowHeaders.add("www-authenticate");
-        allowHeaders.add("Authorization");
-        Set<HttpMethod> allowMethods = new HashSet<>();
-        allowMethods.add(HttpMethod.GET);
-        allowMethods.add(HttpMethod.PUT);
-        allowMethods.add(HttpMethod.OPTIONS);
-        allowMethods.add(HttpMethod.POST);
-        allowMethods.add(HttpMethod.DELETE);
-        allowMethods.add(HttpMethod.PATCH);
-
         router.route().handler(CorsHandler.create("*")
-                .allowedHeaders(allowHeaders)
-                .allowedMethods(allowMethods));
+                .allowedHeader("Content-Type")
+                .allowedHeader("Authorization")
+                .allowedHeader("Access-Control-Request-Method")
+                .allowedHeader("Access-Control-Allow-Credentials")
+                .allowedHeader("Access-Control-Allow-Origin")
+                .allowedHeader("Access-Control-Allow-Headers")
+                .allowedMethod(HttpMethod.GET)
+                .allowedMethod(HttpMethod.POST)
+                .allowedMethod(HttpMethod.PUT)
+                .allowedMethod(HttpMethod.OPTIONS)
+                .allowedMethod(HttpMethod.DELETE));
     }
 
     // helper result handler within a request context
@@ -253,7 +247,6 @@ public class RestAPIVerticle extends BaseMicroserviceVerticle {
     }
 
     protected void badGateway(Throwable ex, RoutingContext context) {
-        ex.printStackTrace();
         context.response()
                 .setStatusCode(502)
                 .putHeader("content-type", "application/json;charset=UTF-8")
@@ -288,5 +281,49 @@ public class RestAPIVerticle extends BaseMicroserviceVerticle {
         context.response().setStatusCode(401)
                 .putHeader("content-type", "application/json")
                 .end(new JsonObject().put("tokenException", "GEN-TOKEN-EXPIRED").encodePrettily());
+    }
+
+    protected Boolean haveAdminPermission(JsonObject json){
+        try {
+            JsonArray roles = new JsonObject(json.getString("header")).getJsonObject("SUBJECT").getJsonArray("roles");
+            return roles.contains(Role.ADMIN.getTypeUser());
+        } catch (Exception e){
+            return false;
+        }
+    }
+
+    protected Boolean haveUserPermission(JsonObject json){
+        try {
+            JsonArray roles = new JsonObject(json.getString("header")).getJsonObject("SUBJECT").getJsonArray("roles");
+            return roles.contains(Role.DEFAULT.getTypeUser());
+        } catch (Exception e){
+            return false;
+        }
+    }
+
+    protected Boolean havePermission(JsonObject json){
+        try {
+            JsonArray roles = Optional.ofNullable(new JsonObject(json.getString("header"))
+                    .getJsonObject("SUBJECT")
+                    .getJsonArray("roles"))
+                    .orElse(new JsonArray());
+            return roles.size() > 0;
+        } catch (Exception e){
+            return false;
+        }
+    }
+
+    protected JsonObject getBodyParamsHeader(RoutingContext context){
+        final JsonObject json = new JsonObject();
+        final JsonObject params = new JsonObject();
+        try{
+            json.put("header", context.request().getHeader("Authorization"));
+            json.put("data", context.getBodyAsJson());
+        } catch (Exception e){}
+        context.request().params().forEach(param -> {
+            params.put(param.getKey(), param.getValue());
+        });
+        json.put("params", params);
+        return json;
     }
 }

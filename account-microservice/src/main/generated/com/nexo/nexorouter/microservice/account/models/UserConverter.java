@@ -40,10 +40,10 @@ public class UserConverter {
       obj.setProfile(new com.nexo.nexorouter.microservice.account.models.Profile((JsonObject)json.getValue("profile")));
     }
     if (json.getValue("tokens") instanceof JsonArray) {
-      java.util.ArrayList<java.lang.String> list = new java.util.ArrayList<>();
+      java.util.ArrayList<com.nexo.nexorouter.microservice.account.models.Token> list = new java.util.ArrayList<>();
       json.getJsonArray("tokens").forEach( item -> {
-        if (item instanceof String)
-          list.add((String)item);
+        if (item instanceof JsonObject)
+          list.add(new com.nexo.nexorouter.microservice.account.models.Token((JsonObject)item));
       });
       obj.setTokens(list);
     }
@@ -74,7 +74,7 @@ public class UserConverter {
     }
     if (obj.getTokens() != null) {
       JsonArray array = new JsonArray();
-      obj.getTokens().forEach(item -> array.add(item));
+      obj.getTokens().forEach(item -> array.add(item.toJson()));
       json.put("tokens", array);
     }
     json.put("updateAt", obj.getUpdateAt());
